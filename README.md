@@ -3,7 +3,8 @@
 This is an API for ComputerCraft and OpenPeripherals which lets you enhance the capabilities of yout Terminal Glasses
 
 ## Requirements
-This API is written for and tested to work with ComputerCraft 1.73 and OpenPeripherals 1.1.1. It may work with older versions as well, though I didn't test that.
+This API is written for and tested to work with ComputerCraft 1.73 and OpenPeripherals Addons 0.3.1. If you intent to use this API on a server, you should use OPA 0.4, as OPA 0.3.1 is missing some methods (most notably ```.delete()```) when run on a server. It may work with older versions as well, though I didn't test that.
+
 Other than that, the only thing you need to use this API is a computer (regular or advanced) connected to a Terminal Glasses Bridge, either directly or using modems and network cables.
 
 ## Installation
