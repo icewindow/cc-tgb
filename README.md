@@ -7,7 +7,7 @@ This API is written for and tested to work with ComputerCraft 1.73 and OpenPerip
 Other than that, the only thing you need to use this API is a computer (regular or advanced) connected to a Terminal Glasses Bridge, either directly or using modems and network cables.
 
 ## Installation
-To install TGB, simply run ```openp/github get icewindow cc-tgb master tgb apis/tgb```
+To install TGB, simply run ```openp/github get icewindow cc-tgb master tgb.lua apis/tgb```
 
 The last part ```apis/tgb``` could be anything, I recommend leaving it like that though.
 
