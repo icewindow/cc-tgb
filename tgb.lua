@@ -1059,9 +1059,7 @@ local function addBitmap( oSurface, nPosx, nPosy, sBitmapPath, nOpacity )
   -- Image implementation
   function image.delete()
     for i=1, #pixels do
-      if pixels[i].delete then
-        pixels[i].delete()
-      end
+      pixels[i].delete()
     end
   end
   
