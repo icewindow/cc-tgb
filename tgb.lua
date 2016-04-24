@@ -18,6 +18,9 @@ local types = {
   bitmap = "bitmap"
 }
 
+-- Keeping track of elements
+local enhancedElements = {}
+
 local vanillaColors = {
   [colors.white]      = 0xF0F0F0,
   [colors.orange]     = 0xF2B233,
@@ -104,6 +107,8 @@ local function addDiagram( oSurface, nPosx, nPosy, nWidth, nHeight, nDataColor, 
   local tData = {}
   local bNormalize = true
   local nNormalizeScale = nHeight
+  local tgbid = #enhancedElements + 1
+  local userdata
 
   -- Setup
   if nMarkerSpaceX then
@@ -111,19 +116,30 @@ local function addDiagram( oSurface, nPosx, nPosy, nWidth, nHeight, nDataColor, 
     elements[1] = oSurface.addBox(nPosx + (not bReverse and 2 or 0), nPosy, nWidth, nHeight, nDiagramColor, nSurfaceOpacity)
     elements[2] = oSurface.addBox(nPosx + (not bReverse and 2 or 0), nPosy + nHeight, nWidth, 1, nDiagramColor, nAxisOpacity)
     elements[3] = oSurface.addBox(nPosx + (bReverse and nWidth or 1), nPosy, 1, nHeight + 1, nDiagramColor, nAxisOpacity)
+    for i=1, 3 do
+      elements[i].setUserdata({_tgbid = tgbid})
+    end
     if nMarkerSpaceX > 0 then
       for i=0, nWidth, nMarkerSpaceX do
-        table.insert(elements.markerX, oSurface.addBox(nPosx + (bReverse and 0 or 1) + i, nPosy + nHeight + 1, 1, 1, nDiagramColor, nAxisOpacity))
+        local box = oSurface.addBox(nPosx + (bReverse and 0 or 1) + i, nPosy + nHeight + 1, 1, 1, nDiagramColor, nAxisOpacity)
+        box.setUserdata({_tgbid = tgbid});
+        table.insert(elements.markerX, box)
       end
     end
     if nMarkerSpaceY > 0 then
       for i=nHeight, 0, -nMarkerSpaceY do
-        table.insert(elements.markerY, oSurface.addBox(nPosx + (bReverse and nWidth + 1 or 0), nPosy + i, 1, 1, nDiagramColor, nAxisOpacity))
+        local box = oSurface.addBox(nPosx + (bReverse and nWidth + 1 or 0), nPosy + i, 1, 1, nDiagramColor, nAxisOpacity)
+        box.setUserdata({_tgbid = tgbid});
+        table.insert(elements.markerY, box)
       end
+    end
+    for i=1, #elements do
+      elements[i].setUserdata({_tgbid = tgbid})
     end
   end
   for i=1,nWidth do
     elements.bars[i] = oSurface.addBox(nPosx, nPosy, 1, 0, nDataColor, nDataOpacity)
+    elements.bars[i].setUserdata({_tgbid = tgbid})
   end
   
   -- Helper functions
@@ -256,6 +272,14 @@ local function addDiagram( oSurface, nPosx, nPosy, nWidth, nHeight, nDataColor, 
     return bVisible
   end
   
+  function diagram.setUserdata( data )
+    userdata = data
+  end
+  
+  function diagram.getUserdata()
+    return userdata
+  end
+  
   function diagram.getData()
     return tData
   end
@@ -338,6 +362,8 @@ function addBargraph( oSurface, nPosx, nPosy, nWidth, nMaxValue, bVertical, bRev
   local oFill
   local oNegativeFill
   local bVisible = true
+  local tgbid = #enhancedElements + 1
+  local userdata
   
   -- Helper function
   local function adjustFill()
@@ -512,6 +538,14 @@ function addBargraph( oSurface, nPosx, nPosy, nWidth, nMaxValue, bVertical, bRev
     return nPosy
   end
   
+  function graph.setUserdata( data )
+    userdata = data
+  end
+  
+  function graph.getUserdata()
+    return userdata
+  end
+  
   function graph.getValue()
     return nValue
   end
@@ -565,6 +599,12 @@ function addBargraph( oSurface, nPosx, nPosy, nWidth, nMaxValue, bVertical, bRev
   oFill = oSurface.addBox(0, 0, nWidth, 0, nFillColor, nFillOpacity)
   oNegativeFill = oSurface.addBox(0, 0, nWidth, nMaxValue, nFillBackgroundColor, nFillBackgroundOpacity)
   adjustFill()
+  
+  for i=1, 4 do
+    tBorder.setUserdata({_tgbid = tgbid})
+  end
+  oFill.setUserdata({_tgbid = tgbid})
+  oNegativeFill.setUserdata({_tgbid = tgbid})
   
   return graph
 end
@@ -621,6 +661,8 @@ local function addTerminal( oSurface, nPosx, nPosy, nChars, nRows, nTextColor, n
   local visible = true
   local textProcessing = false
   local doScreenUpdates = false
+  local tgbid = #enhancedElements + 1
+  local userdata
   
   -- Setup
   for i=1,nRows do
@@ -1173,12 +1215,6 @@ end
 -- Enhanced surface
 function getEnhancedSurfaceFromSurface( oSurface )
   
-  local enhancedElements = {}
-  
-  function oSurface.getAllEnhancedElements()
-    return enhancedElements
-  end
-  
   function oSurface.addDiagram(     nPosx, nPosy, nWidth, nHeight, nDataColor, nDataOpacity, bBar, bReverse, nMarkerSpaceX, nMarkerSpaceY, nDiagramColor, nAxisOpacity, nSurfaceOpacity )
     local e = addDiagram( oSurface, nPosx, nPosy, nWidth, nHeight, nDataColor, nDataOpacity, bBar, bReverse, nMarkerSpaceX, nMarkerSpaceY, nDiagramColor, nAxisOpacity, nSurfaceOpacity )
     table.insert(enhancedElements, e)
@@ -1226,6 +1262,11 @@ function getEnhancedSurfaceFromUUID( oSurfaceProvider, sUUID )
   return getEnhancedSurfaceFromSurface(oSurfaceProvider.getSurfaceByUUID(sUUID))
 end
 
+-- Other functions
+function getAllEnhancedElements()
+  return enhancedElements
+end
+
 function getEnhancedTypes()
   local eTypes = {}
   local i = 1
@@ -1234,4 +1275,43 @@ function getEnhancedTypes()
     i = i + 1
   end
   return eTypes
+end
+
+local bRunning = false
+
+--[[
+ Catch events from the wireless keyboard and builds custom events.
+ Should be run in a coroutine.
+--]]
+function run()
+  if bRunning then
+    error("TGB is already running!")
+  end
+  bRunning = true
+  
+  local e, side, user, uuid, id, onUserSurface, cx, cy, button
+  local function getElement()
+    local element
+    if onUserSurface then
+      local surface = peripheral.call(side, "getSurfaceByUUID", uuid)
+      element = surface.getById(id)
+    else
+      element = peripheral.call(side, "getById", id)
+    end
+    return element
+  end
+  
+  while bRunning do
+    e, side, user, uuid, id, onUserSurface, cx, cy, button = os.pullEvent()
+    --if e == "glasses_capture" then
+    if e == "glasses_component_mouse_down" then
+      local elem = getElement()
+      local tgbid = elem.getUserdata()._tgbid
+      os.queueEvent("tgb_mouse_down", side, user, uuid, tgbid)
+    elseif e == "glasses_component_mouse_up" then
+      local elem = getElement()
+      local tgbid = elem.getUserdata()._tgbid
+      os.queueEvent("tgb_mouse_up", side, user, uuid, tgbid)
+    end
+  end
 end
