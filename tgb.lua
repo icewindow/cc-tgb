@@ -19,7 +19,8 @@ local types = {
 }
 
 -- Keeping track of elements
-local enhancedElements = {}
+local tEnhancedElements = {}
+local nLastId = 1
 
 local vanillaColors = {
   [colors.white]      = 0xF0F0F0,
@@ -107,8 +108,9 @@ local function addDiagram( oSurface, nPosx, nPosy, nWidth, nHeight, nDataColor, 
   local tData = {}
   local bNormalize = true
   local nNormalizeScale = nHeight
-  local tgbid = #enhancedElements + 1
   local userdata
+  local nTgbid = nLastId
+  nLastId = nLastId + 1
 
   -- Setup
   if nMarkerSpaceX then
@@ -117,29 +119,29 @@ local function addDiagram( oSurface, nPosx, nPosy, nWidth, nHeight, nDataColor, 
     elements[2] = oSurface.addBox(nPosx + (not bReverse and 2 or 0), nPosy + nHeight, nWidth, 1, nDiagramColor, nAxisOpacity)
     elements[3] = oSurface.addBox(nPosx + (bReverse and nWidth or 1), nPosy, 1, nHeight + 1, nDiagramColor, nAxisOpacity)
     for i=1, 3 do
-      elements[i].setUserdata({_tgbid = tgbid})
+      elements[i].setUserdata({_tgbid = nTgbid})
     end
     if nMarkerSpaceX > 0 then
       for i=0, nWidth, nMarkerSpaceX do
         local box = oSurface.addBox(nPosx + (bReverse and 0 or 1) + i, nPosy + nHeight + 1, 1, 1, nDiagramColor, nAxisOpacity)
-        box.setUserdata({_tgbid = tgbid});
+        box.setUserdata({_tgbid = nTgbid});
         table.insert(elements.markerX, box)
       end
     end
     if nMarkerSpaceY > 0 then
       for i=nHeight, 0, -nMarkerSpaceY do
         local box = oSurface.addBox(nPosx + (bReverse and nWidth + 1 or 0), nPosy + i, 1, 1, nDiagramColor, nAxisOpacity)
-        box.setUserdata({_tgbid = tgbid});
+        box.setUserdata({_tgbid = nTgbid});
         table.insert(elements.markerY, box)
       end
     end
     for i=1, #elements do
-      elements[i].setUserdata({_tgbid = tgbid})
+      elements[i].setUserdata({_tgbid = nTgbid})
     end
   end
   for i=1,nWidth do
     elements.bars[i] = oSurface.addBox(nPosx, nPosy, 1, 0, nDataColor, nDataOpacity)
-    elements.bars[i].setUserdata({_tgbid = tgbid})
+    elements.bars[i].setUserdata({_tgbid = nTgbid})
   end
   
   -- Helper functions
@@ -185,6 +187,7 @@ local function addDiagram( oSurface, nPosx, nPosy, nWidth, nHeight, nDataColor, 
     for i=1, #elements.bars do
       elements.bars[i].delete()
     end
+    tEnhancedElements[nTgbid] = nil
   end
   
   function diagram.setVisible( bVis )
@@ -281,7 +284,7 @@ local function addDiagram( oSurface, nPosx, nPosy, nWidth, nHeight, nDataColor, 
   end
   
   function diagram.getId()
-    return tgbid
+    return nTgbid
   end
   
   function diagram.getData()
@@ -366,8 +369,9 @@ function addBargraph( oSurface, nPosx, nPosy, nWidth, nMaxValue, bVertical, bRev
   local oFill
   local oNegativeFill
   local bVisible = true
-  local tgbid = #enhancedElements + 1
   local userdata
+  local nTgbid = nLastId
+  nLastId = nLastId  + 1
   
   -- Helper function
   local function adjustFill()
@@ -431,6 +435,7 @@ function addBargraph( oSurface, nPosx, nPosy, nWidth, nMaxValue, bVertical, bRev
     end
     oFill.delete()
     oNegativeFill.delete()
+    tEnhancedElements[nTgbid] = nil
   end
   
   function graph.setVisible( bVis )
@@ -551,7 +556,7 @@ function addBargraph( oSurface, nPosx, nPosy, nWidth, nMaxValue, bVertical, bRev
   end
   
   function graph.getId()
-    return tgbid
+    return nTgbid
   end
   
   function graph.getValue()
@@ -609,10 +614,10 @@ function addBargraph( oSurface, nPosx, nPosy, nWidth, nMaxValue, bVertical, bRev
   adjustFill()
   
   for i=1, 4 do
-    tBorder.setUserdata({_tgbid = tgbid})
+    tBorder.setUserdata({_tgbid = nTgbid})
   end
-  oFill.setUserdata({_tgbid = tgbid})
-  oNegativeFill.setUserdata({_tgbid = tgbid})
+  oFill.setUserdata({_tgbid = nTgbid})
+  oNegativeFill.setUserdata({_tgbid = nTgbid})
   
   return graph
 end
@@ -669,8 +674,9 @@ local function addTerminal( oSurface, nPosx, nPosy, nChars, nRows, nTextColor, n
   local visible = true
   local textProcessing = false
   local doScreenUpdates = false
-  local tgbid = #enhancedElements + 1
   local userdata
+  local nTgbid = nLastId
+  nLastId = nLastId + 1
   
   -- Setup
   for i=1,nRows do
@@ -747,6 +753,7 @@ local function addTerminal( oSurface, nPosx, nPosy, nChars, nRows, nTextColor, n
       end
     end
     cursor.delete()
+    tEnhancedElements[nTgbid] = nil
   end
   
   function term.clear()
@@ -1036,6 +1043,10 @@ local function addTerminal( oSurface, nPosx, nPosy, nChars, nRows, nTextColor, n
     end
   end
   
+  function term.getId()
+    return nTgbid
+  end
+  
   return term
 end
 
@@ -1075,12 +1086,17 @@ local function addBitmap( oSurface, nPosx, nPosy, sBitmapPath, nOpacity )
   local image = {}
   local file
   local bVisible = true
+  local userdata
+  local nTgbid = nLastId
+  nLastId = nLastId  + 1
   
   -- Helper functions
   local MAXINT, SUB = math.pow(2, 31), math.pow(2, 32)
   
   local function addPixel(x, y, color)
-    table.insert(pixels, oSurface.addBox(nPosx + x - 1, nPosy + y - 1, 1, 1, color, nOpacity))
+    local pixel = oSurface.addBox(nPosx + x - 1, nPosy + y - 1, 1, 1, color, nOpacity)
+    pixel.setUserdata({_tgbid = nTgbid})
+    table.insert(pixels, pixel)
   end
   
   local function readByte()
@@ -1111,6 +1127,7 @@ local function addBitmap( oSurface, nPosx, nPosy, sBitmapPath, nOpacity )
     for i=1, #pixels do
       pixels[i].delete()
     end
+    tEnhancedElements[nTgbid] = nil
   end
   
   function image.setX( nNewX )
@@ -1165,8 +1182,16 @@ local function addBitmap( oSurface, nPosx, nPosy, sBitmapPath, nOpacity )
     return bVisible
   end
   
-  function image.closeFile()
-    file.close()
+  function image.setUserdata( data )
+    userdata = data
+  end
+  
+  function image.getUserdata()
+    return userdata
+  end
+  
+  function image.getId()
+    return nTgbid
   end
   
   -- Build the image
@@ -1225,25 +1250,25 @@ function getEnhancedSurfaceFromSurface( oSurface )
   
   function oSurface.addDiagram(     nPosx, nPosy, nWidth, nHeight, nDataColor, nDataOpacity, bBar, bReverse, nMarkerSpaceX, nMarkerSpaceY, nDiagramColor, nAxisOpacity, nSurfaceOpacity )
     local e = addDiagram( oSurface, nPosx, nPosy, nWidth, nHeight, nDataColor, nDataOpacity, bBar, bReverse, nMarkerSpaceX, nMarkerSpaceY, nDiagramColor, nAxisOpacity, nSurfaceOpacity )
-    table.insert(enhancedElements, e)
+    tEnhancedElements[e.getId()] = e
     return e
   end
   
   function oSurface.addTerminal(     nPosx, nPosy, nChars, nRows, nTextColor, nBackgroundColor, nTextOpacity, nBackgroundOpacity )
     local e = addTerminal( oSurface, nPosx, nPosy, nChars, nRows, nTextColor, nBackgroundColor, nTextOpacity, nBackgroundOpacity )
-    table.insert(enhancedElements, e)
+    tEnhancedElements[e.getId()] = e
     return e
   end
   
   function oSurface.addBargraph(     nPosx, nPosy, nWidth, nMaxValue, bVertical, bReverse, nBorderColor, nBorderOpacity, nFillColor, nFillOpacity, nFillBackgroundColor, nFillBackgroundOpacity )
     local e = addBargraph( oSurface, nPosx, nPosy, nWidth, nMaxValue, bVertical, bReverse, nBorderColor, nBorderOpacity, nFillColor, nFillOpacity, nFillBackgroundColor, nFillBackgroundOpacity )
-    table.insert(enhancedElements, e)
+    tEnhancedElements[e.getId()] = e
     return e
   end
   
   function oSurface.addBitmap(     nPosx, nPosy, sBitmapPath, nOpacity )
     local e = addBitmap( oSurface, nPosx, nPosy, sBitmapPath, nOpacity )
-    table.insert(enhancedElements, e)
+    tEnhancedElements[e.getId()] = e
     return e
   end
   
@@ -1272,7 +1297,20 @@ end
 
 -- Other functions
 function getAllEnhancedElements()
-  return enhancedElements
+  return tEnhancedElements
+end
+
+function getById( nId )
+  return tEnhancedElements[nId]
+end
+
+function clear()
+  for i=1, nLastId do
+    if tEnhancedElements[i] then
+      tEnhancedElements[i].delete()
+    end
+  end
+  nLastId = 1
 end
 
 function getEnhancedTypes()
