@@ -1277,18 +1277,11 @@ function getEnhancedTypes()
   return eTypes
 end
 
-local bRunning = false
-
 --[[
  Catch events from the wireless keyboard and builds custom events.
  Should be run in a coroutine.
 --]]
 function run()
-  if bRunning then
-    error("TGB is already running!")
-  end
-  bRunning = true
-  
   local e, side, user, uuid, id, onUserSurface, cx, cy, button
   local function getElement()
     local element
@@ -1301,7 +1294,7 @@ function run()
     return element
   end
   
-  while bRunning do
+  while true do
     e, side, user, uuid, id, onUserSurface, cx, cy, button = os.pullEvent()
     --if e == "glasses_capture" then
     if e == "glasses_component_mouse_down" then
