@@ -280,6 +280,10 @@ local function addDiagram( oSurface, nPosx, nPosy, nWidth, nHeight, nDataColor, 
     return userdata
   end
   
+  function diagram.getId()
+    return tgbid
+  end
+  
   function diagram.getData()
     return tData
   end
@@ -544,6 +548,10 @@ function addBargraph( oSurface, nPosx, nPosy, nWidth, nMaxValue, bVertical, bRev
   
   function graph.getUserdata()
     return userdata
+  end
+  
+  function graph.getId()
+    return tgbid
   end
   
   function graph.getValue()
