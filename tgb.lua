@@ -136,12 +136,12 @@ local function addDiagram( oSurface, nPosx, nPosy, nWidth, nHeight, nDataColor, 
       end
     end
     for i=1, #elements do
-      elements[i].setUserdata({_tgbid = nTgbid})
+      elements[i].setUserdata({_tgbid = nTgbid, rel = "body"})
     end
   end
   for i=1,nWidth do
     elements.bars[i] = oSurface.addBox(nPosx, nPosy, 1, 0, nDataColor, nDataOpacity)
-    elements.bars[i].setUserdata({_tgbid = nTgbid})
+    elements.bars[i].setUserdata({_tgbid = nTgbid, rel = "bar", offset = i})
   end
   
   -- Helper functions
@@ -614,10 +614,10 @@ function addBargraph( oSurface, nPosx, nPosy, nWidth, nMaxValue, bVertical, bRev
   adjustFill()
   
   for i=1, 4 do
-    tBorder.setUserdata({_tgbid = nTgbid})
+    tBorder.setUserdata({_tgbid = nTgbid, rel = "border"})
   end
-  oFill.setUserdata({_tgbid = nTgbid})
-  oNegativeFill.setUserdata({_tgbid = nTgbid})
+  oFill.setUserdata({_tgbid = nTgbid, rel = "fill"})
+  oNegativeFill.setUserdata({_tgbid = nTgbid, rel = "fill"})
   
   return graph
 end
@@ -1095,7 +1095,7 @@ local function addBitmap( oSurface, nPosx, nPosy, sBitmapPath, nOpacity )
   
   local function addPixel(x, y, color)
     local pixel = oSurface.addBox(nPosx + x - 1, nPosy + y - 1, 1, 1, color, nOpacity)
-    pixel.setUserdata({_tgbid = nTgbid})
+    pixel.setUserdata({_tgbid = nTgbid, rel = "pixel"})
     table.insert(pixels, pixel)
   end
   
