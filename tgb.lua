@@ -614,7 +614,7 @@ function addBargraph( oSurface, nPosx, nPosy, nWidth, nMaxValue, bVertical, bRev
   adjustFill()
   
   for i=1, 4 do
-    tBorder.setUserdata({_tgbid = nTgbid, rel = "border"})
+    tBorder[i].setUserdata({_tgbid = nTgbid, rel = "border"})
   end
   oFill.setUserdata({_tgbid = nTgbid, rel = "fill"})
   oNegativeFill.setUserdata({_tgbid = nTgbid, rel = "fill"})
