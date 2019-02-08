@@ -287,6 +287,11 @@ local function addDiagram( oSurface, nPosx, nPosy, nWidth, nHeight, nDataColor, 
     return nTgbid
   end
   
+  function diagram.setData( tNewData )
+    tData = tNewData
+    updateDiagram()
+  end
+  
   function diagram.getData()
     return tData
   end
